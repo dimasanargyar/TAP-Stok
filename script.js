@@ -82,33 +82,33 @@ const btnCancelEdit = document.getElementById("btnCancelEdit");
    STATE untuk barang & alat (terpisah)
 ======================================================= */
 let stokBarang = {};   // object keyed by nama
-let riwayatBarang = []; // array
+let riwayat = []; // array
 let editMode = null;    // { type: 'barang'|'alat', namaLama }
 
 let stokAlat = {};
 let riwayatAlat = [];
 
 /* =======================================================
-   ELEMS (barang) - prefix barang_
+   ELEMS (barang) - prefix 
 ======================================================= */
-const barang_inputNama = document.getElementById("barang_inputNama");
-const barang_inputJumlah = document.getElementById("barang_inputJumlah");
-const barang_inputSatuan = document.getElementById("barang_inputSatuan");
-const barang_inputTanggal = document.getElementById("barang_inputTanggal");
-const barang_btnSimpan = document.getElementById("barang_btnSimpan");
-const barang_btnReset = document.getElementById("barang_btnReset");
-const barang_searchBar = document.getElementById("barang_searchBar");
-const barang_searchStok = document.getElementById("barang_searchStok");
-const barang_tabelStokBody = document.querySelector("#barang_tabelStok tbody");
-const barang_tabelRiwayatBody = document.querySelector("#barang_tabelRiwayat tbody");
-const barang_btnExportStok = document.getElementById("barang_btnExportStok");
-const barang_btnExportRiwayat = document.getElementById("barang_btnExportRiwayat");
-const barang_bulanExport = document.getElementById("barang_bulanExport");
+const inputNama = document.getElementById("inputNama");
+const inputJumlah = document.getElementById("inputJumlah");
+const inputSatuan = document.getElementById("inputSatuan");
+const inputTanggal = document.getElementById("inputTanggal");
+const btnSimpan = document.getElementById("btnSimpan");
+const btnReset = document.getElementById("btnReset");
+const searchBar = document.getElementById("searchBar");
+const searchStok = document.getElementById("searchStok");
+const tabelStokBody = document.querySelector("#tabelStok tbody");
+const tabelRiwayatBody = document.querySelector("#tabelRiwayat tbody");
+const btnExportStok = document.getElementById("btnExportStok");
+const btnExportRiwayat = document.getElementById("btnExportRiwayat");
+const bulanExport = document.getElementById("bulanExport");
 
 /* edit modal barang inputs */
-const edit_barang_nama = document.getElementById("edit_barang_nama");
-const edit_barang_jumlah = document.getElementById("edit_barang_jumlah");
-const edit_barang_satuan = document.getElementById("edit_barang_satuan");
+const editnama = document.getElementById("editnama");
+const editjumlah = document.getElementById("editjumlah");
+const editsatuan = document.getElementById("editsatuan");
 
 /* =======================================================
    ELEMS (alat) - prefix alat_
@@ -208,13 +208,13 @@ function applyRoleUI() {
   const isGuest = currentRole === "guest";
 
   // barang
-  barang_inputNama.disabled = isGuest;
-  barang_inputJumlah.disabled = isGuest;
-  barang_inputSatuan.disabled = isGuest;
-  barang_inputTanggal.disabled = isGuest;
-  barang_btnSimpan.disabled = isGuest;
-  barang_btnReset.disabled = isGuest;
-  barang_bulanExport.disabled = false; // export tetap boleh
+  inputNama.disabled = isGuest;
+  inputJumlah.disabled = isGuest;
+  inputSatuan.disabled = isGuest;
+  inputTanggal.disabled = isGuest;
+  btnSimpan.disabled = isGuest;
+  btnReset.disabled = isGuest;
+  bulanExport.disabled = false; // export tetap boleh
 
   // alat
   alat_inputNama.disabled = isGuest;
@@ -236,26 +236,26 @@ function applyRoleUI() {
    LOGIC: BARANG (database di dbBarang path: stok, riwayat)
 ======================================================= */
 function resetFormBarang() {
-  barang_inputNama.value = "";
-  barang_inputJumlah.value = "";
-  barang_inputSatuan.value = "";
-  barang_inputTanggal.value = "";
+  inputNama.value = "";
+  inputJumlah.value = "";
+  inputSatuan.value = "";
+  inputTanggal.value = "";
 }
 
-barang_btnReset.addEventListener("click", () => {
+btnReset.addEventListener("click", () => {
   resetFormBarang();
 });
 
 /* SIMPAN BARANG */
-barang_btnSimpan.addEventListener("click", () => {
+btnSimpan.addEventListener("click", () => {
   if (currentRole === "guest") {
     alert("Mode Tamu: tidak diizinkan mengubah data.");
     return;
   }
-  const nama = (barang_inputNama.value || "").trim();
-  const jumlah = Number(barang_inputJumlah.value);
-  const satuan = (barang_inputSatuan.value || "").trim() || "-";
-  const tanggal = barang_inputTanggal.value;
+  const nama = (inputNama.value || "").trim();
+  const jumlah = Number(inputJumlah.value);
+  const satuan = (inputSatuan.value || "").trim() || "-";
+  const tanggal = inputTanggal.value;
 
   if (!nama) return alert("Nama barang wajib diisi.");
   if (!tanggal) return alert("Tanggal wajib diisi.");
@@ -268,7 +268,7 @@ barang_btnSimpan.addEventListener("click", () => {
 
   // GANTI PATH: stokBarang -> stok, riwayatBarang -> riwayat
   set(ref(dbBarang, `stok/${nama}`), { jumlah: sisaBaru, satuan })
-    .then(() => push(ref(dbBarang, `riwayat`), {
+    .then(() => push(ref(dbBarang, "riwayat"), {
       tanggal, nama, perubahan: jumlah, sisa: sisaBaru, satuan
     }))
     .then(() => {
@@ -280,12 +280,12 @@ barang_btnSimpan.addEventListener("click", () => {
 
 /* RENDER STOK BARANG */
 function renderStok() {
-  barang_tabelStokBody.innerHTML = "";
-  const key = (barang_searchStok.value || "").trim().toLowerCase();
+  tabelStokBody.innerHTML = "";
+  const key = (searchStok.value || "").trim().toLowerCase();
   const filtered = Object.keys(stokBarang).filter(nama => nama.toLowerCase().includes(key));
 
   if (filtered.length === 0) {
-    barang_tabelStokBody.innerHTML = `<tr><td colspan="4">Tidak ada stok</td></tr>`;
+    tabelStokBody.innerHTML = `<tr><td colspan="4">Tidak ada stok</td></tr>`;
     return;
   }
 
@@ -306,7 +306,7 @@ function renderStok() {
         `}
       </td>
     `;
-    barang_tabelStokBody.appendChild(tr);
+    tabelStokBody.appendChild(tr);
   });
 
   if (!currentRole || currentRole === "guest") return;
@@ -333,9 +333,9 @@ function renderStok() {
       editModalTitle.textContent = `Edit Barang: ${namaBarang}`;
       editFieldsBarang.style.display = "block";
       editFieldsAlat.style.display = "none";
-      edit_barang_nama.value = namaBarang;
-      edit_barang_jumlah.value = item?.jumlah ?? 0;
-      edit_barang_satuan.value = item?.satuan ?? "-";
+      edit_nama.value = namaBarang;
+      edit_jumlah.value = item?.jumlah ?? 0;
+      edit_satuan.value = item?.satuan ?? "-";
       editModal.style.display = "flex";
     });
   });
@@ -343,12 +343,12 @@ function renderStok() {
 
 /* RENDER RIWAYAT BARANG */
 function renderRiwayat() {
-  let data = [...riwayatBarang];
-  const key = (barang_searchBar.value || "").trim().toLowerCase();
+  let data = [...riwayat];
+  const key = (searchBar.value || "").trim().toLowerCase();
   if (key) data = data.filter(it => it.nama.toLowerCase().includes(key) || (it.tanggal||"").includes(key));
-  barang_tabelRiwayatBody.innerHTML = "";
+  tabelRiwayatBody.innerHTML = "";
   if (data.length === 0) {
-    barang_tabelRiwayatBody.innerHTML = `<tr><td colspan="7">Tidak ada riwayat</td></tr>`;
+    tabelRiwayatBody.innerHTML = `<tr><td colspan="7">Tidak ada riwayat</td></tr>`;
     return;
   }
   const isGuest = currentRole === "guest";
@@ -363,11 +363,11 @@ function renderRiwayat() {
       <td>${escapeHtml(it.satuan ?? "-")}</td>
       <td>${isGuest ? "" : `<button class="smallBtn" data-id="${it.id}">Hapus</button>`}</td>
     `;
-    barang_tabelRiwayatBody.appendChild(tr);
+    tabelRiwayatBody.appendChild(tr);
   });
 
   if (!currentRole || currentRole === "guest") return;
-  document.querySelectorAll("#barang_tabelRiwayat .smallBtn").forEach(btn => {
+  document.querySelectorAll("#tabelRiwayat .smallBtn").forEach(btn => {
     btn.addEventListener("click", () => {
       const id = btn.getAttribute("data-id");
       if (id && confirm("Yakin ingin menghapus riwayat ini?")) {
@@ -392,16 +392,16 @@ onValue(ref(dbBarang, "riwayat"), snapshot => {
     if (a.tanggal === b.tanggal) return a.id < b.id ? 1 : -1;
     return (a.tanggal < b.tanggal ? 1 : -1);
   });
-  riwayatBarang = arr;
+  riwayat = arr;
   renderRiwayat();
 });
 
 /* search listeners barang */
-barang_searchBar.addEventListener("input", renderRiwayat);
-barang_searchStok.addEventListener("input", renderStok);
+searchBar.addEventListener("input", renderRiwayat);
+searchStok.addEventListener("input", renderStok);
 
 /* EXPORT BARANG */
-document.getElementById("barang_btnExportStok").addEventListener("click", () => {
+document.getElementById("btnExportStok").addEventListener("click", () => {
   const rows = [["Nama Barang","Jumlah","Satuan"]];
   Object.keys(stokBarang).sort().forEach(nama => {
     const item = stokBarang[nama];
@@ -410,18 +410,18 @@ document.getElementById("barang_btnExportStok").addEventListener("click", () => 
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(rows);
   XLSX.utils.book_append_sheet(wb, ws, "Stok");
-  XLSX.writeFile(wb, `stok_barang_${todayCompact()}.xls`);
+  XLSX.writeFile(wb, `stok_${todayCompact()}.xls`);
 });
 
-document.getElementById("barang_btnExportRiwayat").addEventListener("click", () => {
-  const bulan = (barang_bulanExport.value || "").trim();
+document.getElementById("btnExportRiwayat").addEventListener("click", () => {
+  const bulan = (bulanExport.value || "").trim();
   if (!bulan) { alert("Pilih bulan terlebih dahulu."); return; }
   const rows = [["Tanggal","Nama Barang","Perubahan","Sisa","Satuan"]];
-  riwayatBarang.filter(it => (it.tanggal||"").startsWith(bulan)).forEach(it => rows.push([it.tanggal, it.nama, it.perubahan, it.sisa, it.satuan ?? "-"]));
+  riwayat.filter(it => (it.tanggal||"").startsWith(bulan)).forEach(it => rows.push([it.tanggal, it.nama, it.perubahan, it.sisa, it.satuan ?? "-"]));
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(rows);
   XLSX.utils.book_append_sheet(wb, ws, "Riwayat");
-  XLSX.writeFile(wb, `riwayat_barang_${bulan}.xls`);
+  XLSX.writeFile(wb, `riwayat_${bulan}.xls`);
 });
 
 /* =======================================================
@@ -619,9 +619,9 @@ btnUpdate.addEventListener("click", () => {
   if (!editMode) return;
   if (editMode.type === "barang") {
     const { namaLama } = editMode;
-    const namaBaru = (edit_barang_nama.value || "").trim();
-    const jumlahBaru = Number(edit_barang_jumlah.value);
-    const satuanBaru = (edit_barang_satuan.value || "").trim() || "-";
+    const namaBaru = (edit_nama.value || "").trim();
+    const jumlahBaru = Number(edit_jumlah.value);
+    const satuanBaru = (edit_satuan.value || "").trim() || "-";
     const tanggal = todayISO();
 
     if (!namaBaru) return alert("Nama barang wajib diisi.");
