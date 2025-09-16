@@ -233,7 +233,7 @@ function applyRoleUI() {
 }
 
 /* =======================================================
-   LOGIC: BARANG (database di dbBarang path: stokBarang, riwayatBarang)
+   LOGIC: BARANG (database di dbBarang path: stok, riwayat)
 ======================================================= */
 function resetFormBarang() {
   barang_inputNama.value = "";
@@ -266,8 +266,9 @@ barang_btnSimpan.addEventListener("click", () => {
   const sisaBaru = stokLama + jumlah;
   if (jumlah < 0 && sisaBaru < 0) return alert(`Stok tidak cukup. Stok saat ini: ${stokLama}`);
 
-  set(ref(dbBarang, `stokBarang/${nama}`), { jumlah: sisaBaru, satuan })
-    .then(() => push(ref(dbBarang, `riwayatBarang`), {
+  // GANTI PATH: stokBarang -> stok, riwayatBarang -> riwayat
+  set(ref(dbBarang, `stok/${nama}`), { jumlah: sisaBaru, satuan })
+    .then(() => push(ref(dbBarang, `riwayat`), {
       tanggal, nama, perubahan: jumlah, sisa: sisaBaru, satuan
     }))
     .then(() => {
@@ -314,10 +315,11 @@ function renderStokBarang() {
     btn.addEventListener("click", () => {
       const namaBarang = btn.getAttribute("data-hapus-barang");
       if (!confirm(`Yakin menghapus barang "${namaBarang}"?`)) return;
-      remove(ref(dbBarang, `stokBarang/${namaBarang}`));
-      onValue(ref(dbBarang, `riwayatBarang`), snapshot => {
+      // GANTI PATH: stokBarang -> stok, riwayatBarang -> riwayat
+      remove(ref(dbBarang, `stok/${namaBarang}`));
+      onValue(ref(dbBarang, `riwayat`), snapshot => {
         snapshot.forEach(child => {
-          if (child.val().nama === namaBarang) remove(ref(dbBarang, `riwayatBarang/${child.key}`));
+          if (child.val().nama === namaBarang) remove(ref(dbBarang, `riwayat/${child.key}`));
         });
       }, { onlyOnce: true });
     });
@@ -368,18 +370,22 @@ function renderRiwayatBarang() {
   document.querySelectorAll("#barang_tabelRiwayat .smallBtn").forEach(btn => {
     btn.addEventListener("click", () => {
       const id = btn.getAttribute("data-id");
-      if (id && confirm("Yakin ingin menghapus riwayat ini?")) remove(ref(dbBarang, `riwayatBarang/${id}`));
+      if (id && confirm("Yakin ingin menghapus riwayat ini?")) {
+        // GANTI PATH: riwayatBarang -> riwayat
+        remove(ref(dbBarang, `riwayat/${id}`));
+      }
     });
   });
 }
 
 /* real-time listeners barang */
-onValue(ref(dbBarang, `stokBarang`), snapshot => {
+// GANTI PATHS: stokBarang -> stok, riwayatBarang -> riwayat
+onValue(ref(dbBarang, `stok`), snapshot => {
   stokBarang = snapshot.val() || {};
   renderStokBarang();
 });
 
-onValue(ref(dbBarang, `riwayatBarang`), snapshot => {
+onValue(ref(dbBarang, `riwayat`), snapshot => {
   const arr = [];
   snapshot.forEach(child => arr.push({ id: child.key, ...child.val() }));
   arr.sort((a,b) => {
@@ -420,6 +426,7 @@ document.getElementById("barang_btnExportRiwayat").addEventListener("click", () 
 
 /* =======================================================
    LOGIC: ALAT (database di dbAlat path: stokAlat, riwayatAlat)
+   (tidak diubah)
 ======================================================= */
 function resetFormAlat() {
   alat_inputNama.value = "";
@@ -621,13 +628,14 @@ btnUpdate.addEventListener("click", () => {
     if (Number.isNaN(jumlahBaru)) return alert("Jumlah harus angka.");
     if (jumlahBaru < 0) return alert("Jumlah tidak boleh negatif.");
 
-    remove(ref(dbBarang, `stokBarang/${namaLama}`))
-      .then(() => set(ref(dbBarang, `stokBarang/${namaBaru}`), { jumlah: jumlahBaru, satuan: satuanBaru }))
+    // GANTI PATHS: stokBarang -> stok, riwayatBarang -> riwayat
+    remove(ref(dbBarang, `stok/${namaLama}`))
+      .then(() => set(ref(dbBarang, `stok/${namaBaru}`), { jumlah: jumlahBaru, satuan: satuanBaru }))
       .then(() => {
-        onValue(ref(dbBarang, `riwayatBarang`), snapshot => {
+        onValue(ref(dbBarang, `riwayat`), snapshot => {
           snapshot.forEach(child => {
             if (child.val().nama === namaLama) {
-              update(ref(dbBarang, `riwayatBarang/${child.key}`), { nama: namaBaru, sisa: jumlahBaru, satuan: satuanBaru });
+              update(ref(dbBarang, `riwayat/${child.key}`), { nama: namaBaru, sisa: jumlahBaru, satuan: satuanBaru });
             }
           });
         }, { onlyOnce: true });
