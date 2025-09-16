@@ -38,11 +38,9 @@ const firebaseConfigAlat = {
 
 /* initialize two apps with names */
 const appBarang = initializeApp(firebaseConfigBarang, "appBarang");
-const analyticsBarang = getAnalytics(appBarang);
 const dbBarang = getDatabase(appBarang);
 
 const appAlat = initializeApp(firebaseConfigAlat, "appAlat");
-const analyticsAlat = getAnalytics(appAlat);
 const dbAlat = getDatabase(appAlat);
 
 /* =======================================================
