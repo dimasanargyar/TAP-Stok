@@ -37,9 +37,9 @@ const firebaseConfigAlat = {
 };
 
 /* initialize two apps with names */
-const app = initializeApp(firebaseConfigBarang, "app");
-const analyticsBarang = getAnalytics(app);
-const db = getDatabase(app);
+const appBarang = initializeApp(firebaseConfigBarang, "appBarang");
+const analyticsBarang = getAnalytics(appBarang);
+const dbBarang = getDatabase(appBarang);
 
 const appAlat = initializeApp(firebaseConfigAlat, "appAlat");
 const analyticsAlat = getAnalytics(appAlat);
@@ -267,8 +267,8 @@ btnSimpan.addEventListener("click", () => {
   if (jumlah < 0 && sisaBaru < 0) return alert(`Stok tidak cukup. Stok saat ini: ${stokLama}`);
 
   // GANTI PATH: stokBarang -> stok, riwayatBarang -> riwayat
-  set(ref(db, `stok/${nama}`), { jumlah: sisaBaru, satuan })
-    .then(() => push(ref(db, "riwayat"), {
+  set(ref(dbBarang, `stok/${nama}`), { jumlah: sisaBaru, satuan })
+    .then(() => push(ref(dbBarang, "riwayat"), {
       tanggal, nama, perubahan: jumlah, sisa: sisaBaru, satuan
     }))
     .then(() => {
@@ -316,10 +316,10 @@ function renderStok() {
       const namaBarang = btn.getAttribute("data-hapus-barang");
       if (!confirm(`Yakin menghapus barang "${namaBarang}"?`)) return;
       // GANTI PATH: stokBarang -> stok, riwayatBarang -> riwayat
-      remove(ref(db, `stok/${namaBarang}`));
-      onValue(ref(db, "riwayat"), snapshot => {
+      remove(ref(dbBarang, `stok/${namaBarang}`));
+      onValue(ref(dbBarang, "riwayat"), snapshot => {
         snapshot.forEach(child => {
-          if (child.val().nama === namaBarang) remove(ref(db, `riwayat/${child.key}`));
+          if (child.val().nama === namaBarang) remove(ref(dbBarang, `riwayat/${child.key}`));
         });
       }, { onlyOnce: true });
     });
@@ -372,7 +372,7 @@ function renderRiwayat() {
       const id = btn.getAttribute("data-id");
       if (id && confirm("Yakin ingin menghapus riwayat ini?")) {
         // GANTI PATH: riwayatBarang -> riwayat
-        remove(ref(db, `riwayat/${id}`));
+        remove(ref(dbBarang, `riwayat/${id}`));
       }
     });
   });
@@ -380,12 +380,12 @@ function renderRiwayat() {
 
 /* real-time listeners barang */
 // GANTI PATHS: stokBarang -> stok, riwayatBarang -> riwayat
-onValue(ref(db, "stok"), snapshot => {
+onValue(ref(dbBarang, "stok"), snapshot => {
   stokBarang = snapshot.val() || {};
   renderStok();
 });
 
-onValue(ref(db, "riwayat"), snapshot => {
+onValue(ref(dbBarang, "riwayat"), snapshot => {
   const arr = [];
   snapshot.forEach(child => arr.push({ id: child.key, ...child.val() }));
   arr.sort((a,b) => {
@@ -629,13 +629,13 @@ btnUpdate.addEventListener("click", () => {
     if (jumlahBaru < 0) return alert("Jumlah tidak boleh negatif.");
 
     // GANTI PATHS: stokBarang -> stok, riwayatBarang -> riwayat
-    remove(ref(db, `stok/${namaLama}`))
-      .then(() => set(ref(db, `stok/${namaBaru}`), { jumlah: jumlahBaru, satuan: satuanBaru }))
+    remove(ref(dbBarang, `stok/${namaLama}`))
+      .then(() => set(ref(dbBarang, `stok/${namaBaru}`), { jumlah: jumlahBaru, satuan: satuanBaru }))
       .then(() => {
-        onValue(ref(db, `riwayat`), snapshot => {
+        onValue(ref(dbBarang, `riwayat`), snapshot => {
           snapshot.forEach(child => {
             if (child.val().nama === namaLama) {
-              update(ref(db, `riwayat/${child.key}`), { nama: namaBaru, sisa: jumlahBaru, satuan: satuanBaru });
+              update(ref(dbBarang, `riwayat/${child.key}`), { nama: namaBaru, sisa: jumlahBaru, satuan: satuanBaru });
             }
           });
         }, { onlyOnce: true });
