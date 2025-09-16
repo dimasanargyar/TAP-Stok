@@ -26,14 +26,14 @@ const firebaseConfigBarang = {
 
 /* config Alat (sama persis dengan yang kamu kirim untuk web2) */
 const firebaseConfigAlat = {
-  apiKey: "AIzaSyCaOQPlCQ8oBNp1H2I1Frf6dN5lUmzBGN4",
-  authDomain: "stok-alat.firebaseapp.com",
-  databaseURL: "https://stok-alat-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "stok-alat",
-  storageBucket: "stok-alat.firebasestorage.app",
-  messagingSenderId: "725607746091",
-  appId: "1:725607746091:web:284c62588307ce7fb4f86e",
-  measurementId: "G-BSZY4KFF0C"
+    apiKey: "AIzaSyCaOQPlCQ8oBNp1H2I1Frf6dN5lUmzBGN4",
+    authDomain: "stok-alat.firebaseapp.com",
+    databaseURL: "https://stok-alat-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "stok-alat",
+    storageBucket: "stok-alat.firebasestorage.app",
+    messagingSenderId: "725607746091",
+    appId: "1:725607746091:web:284c62588307ce7fb4f86e",
+    measurementId: "G-BSZY4KFF0C"
 };
 
 /* initialize two apps with names */
