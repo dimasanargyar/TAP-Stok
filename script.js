@@ -341,7 +341,7 @@ function renderStok() {
 
 /* RENDER RIWAYAT BARANG */
 function renderRiwayat() {
-  let data = [...riwayat;
+  let data = [...riwayat];
   const key = (barang_searchBar.value || "").trim().toLowerCase();
   if (key) data = data.filter(it => it.nama.toLowerCase().includes(key) || (it.tanggal||"").includes(key));
   barang_tabelRiwayatBody.innerHTML = "";
