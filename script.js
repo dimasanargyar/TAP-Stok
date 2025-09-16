@@ -226,8 +226,8 @@ function applyRoleUI() {
   alat_btnReset.disabled = isGuest;
   alat_bulanExport.disabled = false;
 
-  renderStokBarang();
-  renderRiwayatBarang();
+  renderStok();
+  renderRiwayat();
   renderStokAlat();
   renderRiwayatAlat();
 }
@@ -279,7 +279,7 @@ barang_btnSimpan.addEventListener("click", () => {
 });
 
 /* RENDER STOK BARANG */
-function renderStokBarang() {
+function renderStok() {
   barang_tabelStokBody.innerHTML = "";
   const key = (barang_searchStok.value || "").trim().toLowerCase();
   const filtered = Object.keys(stokBarang).filter(nama => nama.toLowerCase().includes(key));
@@ -317,7 +317,7 @@ function renderStokBarang() {
       if (!confirm(`Yakin menghapus barang "${namaBarang}"?`)) return;
       // GANTI PATH: stokBarang -> stok, riwayatBarang -> riwayat
       remove(ref(dbBarang, `stok/${namaBarang}`));
-      onValue(ref(dbBarang, `riwayat`), snapshot => {
+      onValue(ref(dbBarang, "riwayat"), snapshot => {
         snapshot.forEach(child => {
           if (child.val().nama === namaBarang) remove(ref(dbBarang, `riwayat/${child.key}`));
         });
@@ -342,7 +342,7 @@ function renderStokBarang() {
 }
 
 /* RENDER RIWAYAT BARANG */
-function renderRiwayatBarang() {
+function renderRiwayat() {
   let data = [...riwayatBarang];
   const key = (barang_searchBar.value || "").trim().toLowerCase();
   if (key) data = data.filter(it => it.nama.toLowerCase().includes(key) || (it.tanggal||"").includes(key));
@@ -380,12 +380,12 @@ function renderRiwayatBarang() {
 
 /* real-time listeners barang */
 // GANTI PATHS: stokBarang -> stok, riwayatBarang -> riwayat
-onValue(ref(dbBarang, `stok`), snapshot => {
+onValue(ref(dbBarang, "stok"), snapshot => {
   stokBarang = snapshot.val() || {};
-  renderStokBarang();
+  renderStok();
 });
 
-onValue(ref(dbBarang, `riwayat`), snapshot => {
+onValue(ref(dbBarang, "riwayat"), snapshot => {
   const arr = [];
   snapshot.forEach(child => arr.push({ id: child.key, ...child.val() }));
   arr.sort((a,b) => {
@@ -393,12 +393,12 @@ onValue(ref(dbBarang, `riwayat`), snapshot => {
     return (a.tanggal < b.tanggal ? 1 : -1);
   });
   riwayatBarang = arr;
-  renderRiwayatBarang();
+  renderRiwayat();
 });
 
 /* search listeners barang */
-barang_searchBar.addEventListener("input", renderRiwayatBarang);
-barang_searchStok.addEventListener("input", renderStokBarang);
+barang_searchBar.addEventListener("input", renderRiwayat);
+barang_searchStok.addEventListener("input", renderStok);
 
 /* EXPORT BARANG */
 document.getElementById("barang_btnExportStok").addEventListener("click", () => {
