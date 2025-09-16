@@ -373,13 +373,11 @@ function renderRiwayatBarang() {
 
 /* real-time listeners barang */
 onValue(ref(dbBarang, `stokBarang`), snapshot => {
-  console.log("Data stokBarang:", snapshot.val());
   stokBarang = snapshot.val() || {};
   renderStokBarang();
 });
 
 onValue(ref(dbBarang, `riwayatBarang`), snapshot => {
-  console.log("Data riwayatBarang:", snapshot.val());
   const arr = [];
   snapshot.forEach(child => arr.push({ id: child.key, ...child.val() }));
   arr.sort((a,b) => {
@@ -562,13 +560,11 @@ function renderRiwayatAlat() {
 
 /* real-time listeners alat */
 onValue(ref(dbAlat, `stokAlat`), snapshot => {
-  console.log("Data stokAlat:", snapshot.val());
   stokAlat = snapshot.val() || {};
   renderStokAlat();
 });
 
 onValue(ref(dbAlat, `riwayatAlat`), snapshot => {
-  console.log("Data riwayatAlat:", snapshot.val());
   const arr = [];
   snapshot.forEach(child => arr.push({ id: child.key, ...child.val() }));
   arr.sort((a,b) => {
