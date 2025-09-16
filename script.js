@@ -82,7 +82,7 @@ const btnCancelEdit = document.getElementById("btnCancelEdit");
    STATE untuk barang & alat (terpisah)
 ======================================================= */
 let stokBarang = {};   // object keyed by nama
-let riwayat = []; // array
+let riwayatBarang = []; // array
 let editMode = null;    // { type: 'barang'|'alat', namaLama }
 
 let stokAlat = {};
@@ -226,8 +226,8 @@ function applyRoleUI() {
   alat_btnReset.disabled = isGuest;
   alat_bulanExport.disabled = false;
 
-  renderStok();
-  renderRiwayat();
+  renderStokBarang();
+  renderRiwayatBarang();
   renderStokAlat();
   renderRiwayatAlat();
 }
@@ -266,8 +266,8 @@ barang_btnSimpan.addEventListener("click", () => {
   const sisaBaru = stokLama + jumlah;
   if (jumlah < 0 && sisaBaru < 0) return alert(`Stok tidak cukup. Stok saat ini: ${stokLama}`);
 
-  set(ref(dbBarang, `stok/${nama}`), { jumlah: sisaBaru, satuan })
-    .then(() => push(ref(dbBarang, `riwayat`), {
+  set(ref(dbBarang, `stokBarang/${nama}`), { jumlah: sisaBaru, satuan })
+    .then(() => push(ref(dbBarang, `riwayatBarang`), {
       tanggal, nama, perubahan: jumlah, sisa: sisaBaru, satuan
     }))
     .then(() => {
@@ -278,7 +278,7 @@ barang_btnSimpan.addEventListener("click", () => {
 });
 
 /* RENDER STOK BARANG */
-function renderStok() {
+function renderStokBarang() {
   barang_tabelStokBody.innerHTML = "";
   const key = (barang_searchStok.value || "").trim().toLowerCase();
   const filtered = Object.keys(stokBarang).filter(nama => nama.toLowerCase().includes(key));
@@ -314,10 +314,10 @@ function renderStok() {
     btn.addEventListener("click", () => {
       const namaBarang = btn.getAttribute("data-hapus-barang");
       if (!confirm(`Yakin menghapus barang "${namaBarang}"?`)) return;
-      remove(ref(dbBarang, `stok/${namaBarang}`));
-      onValue(ref(dbBarang, `riwayat`), snapshot => {
+      remove(ref(dbBarang, `stokBarang/${namaBarang}`));
+      onValue(ref(dbBarang, `riwayatBarang`), snapshot => {
         snapshot.forEach(child => {
-          if (child.val().nama === namaBarang) remove(ref(dbBarang, `riwayat/${child.key}`));
+          if (child.val().nama === namaBarang) remove(ref(dbBarang, `riwayatBarang/${child.key}`));
         });
       }, { onlyOnce: true });
     });
@@ -340,8 +340,8 @@ function renderStok() {
 }
 
 /* RENDER RIWAYAT BARANG */
-function renderRiwayat() {
-  let data = [...riwayat];
+function renderRiwayatBarang() {
+  let data = [...riwayatBarang];
   const key = (barang_searchBar.value || "").trim().toLowerCase();
   if (key) data = data.filter(it => it.nama.toLowerCase().includes(key) || (it.tanggal||"").includes(key));
   barang_tabelRiwayatBody.innerHTML = "";
@@ -368,31 +368,31 @@ function renderRiwayat() {
   document.querySelectorAll("#barang_tabelRiwayat .smallBtn").forEach(btn => {
     btn.addEventListener("click", () => {
       const id = btn.getAttribute("data-id");
-      if (id && confirm("Yakin ingin menghapus riwayat ini?")) remove(ref(dbBarang, `riwayat/${id}`));
+      if (id && confirm("Yakin ingin menghapus riwayat ini?")) remove(ref(dbBarang, `riwayatBarang/${id}`));
     });
   });
 }
 
 /* real-time listeners barang */
-onValue(ref(dbBarang, `stok`), snapshot => {
-  stok = snapshot.val() || {};
-  renderStok();
+onValue(ref(dbBarang, `stokBarang`), snapshot => {
+  stokBarang = snapshot.val() || {};
+  renderStokBarang();
 });
 
-onValue(ref(dbBarang, `riwayat`), snapshot => {
+onValue(ref(dbBarang, `riwayatBarang`), snapshot => {
   const arr = [];
   snapshot.forEach(child => arr.push({ id: child.key, ...child.val() }));
   arr.sort((a,b) => {
     if (a.tanggal === b.tanggal) return a.id < b.id ? 1 : -1;
     return (a.tanggal < b.tanggal ? 1 : -1);
   });
-  riwayat = arr;
-  renderRiwayat();
+  riwayatBarang = arr;
+  renderRiwayatBarang();
 });
 
 /* search listeners barang */
-barang_searchBar.addEventListener("input", renderRiwayat);
-barang_searchStok.addEventListener("input", renderStok);
+barang_searchBar.addEventListener("input", renderRiwayatBarang);
+barang_searchStok.addEventListener("input", renderStokBarang);
 
 /* EXPORT BARANG */
 document.getElementById("barang_btnExportStok").addEventListener("click", () => {
@@ -411,7 +411,7 @@ document.getElementById("barang_btnExportRiwayat").addEventListener("click", () 
   const bulan = (barang_bulanExport.value || "").trim();
   if (!bulan) { alert("Pilih bulan terlebih dahulu."); return; }
   const rows = [["Tanggal","Nama Barang","Perubahan","Sisa","Satuan"]];
-  riwayat.filter(it => (it.tanggal||"").startsWith(bulan)).forEach(it => rows.push([it.tanggal, it.nama, it.perubahan, it.sisa, it.satuan ?? "-"]));
+  riwayatBarang.filter(it => (it.tanggal||"").startsWith(bulan)).forEach(it => rows.push([it.tanggal, it.nama, it.perubahan, it.sisa, it.satuan ?? "-"]));
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(rows);
   XLSX.utils.book_append_sheet(wb, ws, "Riwayat");
@@ -621,13 +621,13 @@ btnUpdate.addEventListener("click", () => {
     if (Number.isNaN(jumlahBaru)) return alert("Jumlah harus angka.");
     if (jumlahBaru < 0) return alert("Jumlah tidak boleh negatif.");
 
-    remove(ref(dbBarang, `stok/${namaLama}`))
-      .then(() => set(ref(dbBarang, `stok/${namaBaru}`), { jumlah: jumlahBaru, satuan: satuanBaru }))
+    remove(ref(dbBarang, `stokBarang/${namaLama}`))
+      .then(() => set(ref(dbBarang, `stokBarang/${namaBaru}`), { jumlah: jumlahBaru, satuan: satuanBaru }))
       .then(() => {
-        onValue(ref(dbBarang, `riwayat`), snapshot => {
+        onValue(ref(dbBarang, `riwayatBarang`), snapshot => {
           snapshot.forEach(child => {
             if (child.val().nama === namaLama) {
-              update(ref(dbBarang, `riwayat/${child.key}`), { nama: namaBaru, sisa: jumlahBaru, satuan: satuanBaru });
+              update(ref(dbBarang, `riwayatBarang/${child.key}`), { nama: namaBaru, sisa: jumlahBaru, satuan: satuanBaru });
             }
           });
         }, { onlyOnce: true });
