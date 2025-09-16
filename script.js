@@ -82,7 +82,7 @@ const btnCancelEdit = document.getElementById("btnCancelEdit");
    STATE untuk barang & alat (terpisah)
 ======================================================= */
 let stokBarang = {};   // object keyed by nama
-let riwayat = []; // array
+let riwayatBarang = []; // array
 let editMode = null;    // { type: 'barang'|'alat', namaLama }
 
 let stokAlat = {};
@@ -268,7 +268,7 @@ barang_btnSimpan.addEventListener("click", () => {
 
   // GANTI PATH: stokBarang -> stok, riwayatBarang -> riwayat
   set(ref(dbBarang, `stok/${nama}`), { jumlah: sisaBaru, satuan })
-    .then(() => push(ref(dbBarang, "riwayat"), {
+    .then(() => push(ref(dbBarang, `riwayat`), {
       tanggal, nama, perubahan: jumlah, sisa: sisaBaru, satuan
     }))
     .then(() => {
@@ -343,7 +343,7 @@ function renderStok() {
 
 /* RENDER RIWAYAT BARANG */
 function renderRiwayat() {
-  let data = [...riwayat];
+  let data = [...riwayatBarang];
   const key = (barang_searchBar.value || "").trim().toLowerCase();
   if (key) data = data.filter(it => it.nama.toLowerCase().includes(key) || (it.tanggal||"").includes(key));
   barang_tabelRiwayatBody.innerHTML = "";
@@ -392,7 +392,7 @@ onValue(ref(dbBarang, "riwayat"), snapshot => {
     if (a.tanggal === b.tanggal) return a.id < b.id ? 1 : -1;
     return (a.tanggal < b.tanggal ? 1 : -1);
   });
-  riwayat = arr;
+  riwayatBarang = arr;
   renderRiwayat();
 });
 
@@ -417,7 +417,7 @@ document.getElementById("barang_btnExportRiwayat").addEventListener("click", () 
   const bulan = (barang_bulanExport.value || "").trim();
   if (!bulan) { alert("Pilih bulan terlebih dahulu."); return; }
   const rows = [["Tanggal","Nama Barang","Perubahan","Sisa","Satuan"]];
-  riwayat.filter(it => (it.tanggal||"").startsWith(bulan)).forEach(it => rows.push([it.tanggal, it.nama, it.perubahan, it.sisa, it.satuan ?? "-"]));
+  riwayatBarang.filter(it => (it.tanggal||"").startsWith(bulan)).forEach(it => rows.push([it.tanggal, it.nama, it.perubahan, it.sisa, it.satuan ?? "-"]));
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(rows);
   XLSX.utils.book_append_sheet(wb, ws, "Riwayat");
