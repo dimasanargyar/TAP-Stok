@@ -13,7 +13,7 @@ import {
 ======================================================= */
 
 /* config Barang (sama persis dengan yang kamu kirim untuk web1) */
-const firebaseConfig = {
+const firebaseConfigBarang = {
   apiKey: "AIzaSyAXwrQEVJpDXSsWSF-QEcEtwzl08khw_YI",
   authDomain: "stok-barang-d9ea6.firebaseapp.com",
   databaseURL: "https://stok-barang-d9ea6-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -25,7 +25,7 @@ const firebaseConfig = {
 };
 
 /* config Alat (sama persis dengan yang kamu kirim untuk web2) */
-const firebaseConfig = {
+const firebaseConfigAlat = {
     apiKey: "AIzaSyCaOQPlCQ8oBNp1H2I1Frf6dN5lUmzBGN4",
     authDomain: "stok-alat.firebaseapp.com",
     databaseURL: "https://stok-alat-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -37,10 +37,10 @@ const firebaseConfig = {
 };
 
 /* initialize two apps with names */
-const appBarang = initializeApp(firebaseConfig, "appBarang");
+const appBarang = initializeApp(firebaseConfigBarang, "appBarang");
 const dbBarang = getDatabase(appBarang);
 
-const appAlat = initializeApp(firebaseConfig, "appAlat");
+const appAlat = initializeApp(firebaseConfigAlat, "appAlat");
 const dbAlat = getDatabase(appAlat);
 
 /* =======================================================
