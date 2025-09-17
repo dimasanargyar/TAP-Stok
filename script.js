@@ -283,6 +283,18 @@ barang_btnSimpan.addEventListener("click", () => {
     .catch(err => console.error("❌ Gagal menyimpan data:", err));
 });
 
+btnResetForm.addEventListener("click", () => {
+  resetFormInputs();
+  editMode = null;
+});
+
+function resetFormInputs() {
+  inputNama.value = "";
+  inputJumlah.value = "";
+  inputSatuan.value = "";
+  inputTanggal.value = "";
+}
+
 /* RENDER STOK BARANG */
 function renderStok() {
   barang_tabelStokBody.innerHTML = "";
