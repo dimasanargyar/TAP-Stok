@@ -186,12 +186,12 @@ function showPage(page) {
   if (page === "barang") {
     pageBarang.style.display = "block";
     pageAlat.style.display = "none";
-    appTitle.textContent = "Monitoring Stok Barang";
+    appTitle.textContent = "Stok Barang";
     btnSwitch.textContent = "Switch Halaman → Alat";
   } else {
     pageBarang.style.display = "none";
     pageAlat.style.display = "block";
-    appTitle.textContent = "Monitoring Stok Alat";
+    appTitle.textContent = "Stok Alat";
     btnSwitch.textContent = "Switch Halaman → Barang";
   }
 }
