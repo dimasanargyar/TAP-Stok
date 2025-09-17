@@ -268,9 +268,9 @@ barang_btnSimpan.addEventListener("click", () => {
 
   // GANTI PATH: stokBarang -> stok, riwayatBarang -> riwayat
   set(ref(dbBarang, `stok/${nama}`), { jumlah: sisaBaru, satuan })
-    .then(() => push(ref(dbBarang, "riwayat"), {
+    .then(() => return push(ref(dbBarang, "riwayat"), {
       tanggal, nama, perubahan: jumlah, sisa: sisaBaru, satuan
-    }))
+    }));
     .then(() => {
       alert("✅ Data barang berhasil disimpan.");
       resetFormBarang();
