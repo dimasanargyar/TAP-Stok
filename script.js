@@ -268,14 +268,19 @@ barang_btnSimpan.addEventListener("click", () => {
 
   // GANTI PATH: stokBarang -> stok, riwayatBarang -> riwayat
   set(ref(dbBarang, `stok/${nama}`), { jumlah: sisaBaru, satuan })
-    .then(() => return push(ref(dbBarang, "riwayat"), {
-      tanggal, nama, perubahan: jumlah, sisa: sisaBaru, satuan
-    }));
     .then(() => {
-      alert("✅ Data barang berhasil disimpan.");
-      resetFormBarang();
+      return push(ref(dbBarang, "riwayat"), {
+        tanggal,
+        nama,
+        perubahan: jumlah,
+        sisa: sisaBaru,
+      });
     })
-    .catch(err => console.error("Gagal simpan barang:", err));
+    .then(() => {
+      alert("✅ Data berhasil disimpan.");
+      resetFormInput();
+    })
+    .catch(err => console.error("❌ Gagal menyimpan data:", err));
 });
 
 /* RENDER STOK BARANG */
