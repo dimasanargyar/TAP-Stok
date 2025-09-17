@@ -350,20 +350,25 @@ function renderStok() {
 function renderRiwayat() {
   let data = [...riwayat];
   const key = (barang_searchBar.value || "").trim().toLowerCase();
-  if (key) data = data.filter(it => it.nama.toLowerCase().includes(key) || (it.tanggal||"").includes(key));
+  if (key) {
+    data = data.filter(it => it.nama.toLowerCase().includes(key) || (it.tanggal || "").includes(key));
+  }
+
   barang_tabelRiwayatBody.innerHTML = "";
   if (data.length === 0) {
     barang_tabelRiwayatBody.innerHTML = `<tr><td colspan="7">Tidak ada riwayat</td></tr>`;
     return;
   }
+
   const isGuest = currentRole === "guest";
+
   data.forEach((it, idx) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${idx+1}</td>
+      <td>${idx + 1}</td>
       <td>${escapeHtml(it.tanggal)}</td>
       <td>${escapeHtml(it.nama)}</td>
-      <td>${it.perubahan>0? "+"+it.perubahan : it.perubahan}</td>
+      <td>${it.perubahan > 0 ? "+" + it.perubahan : it.perubahan}</td>
       <td>${it.sisa}</td>
       <td>${escapeHtml(it.satuan ?? "-")}</td>
       <td>${isGuest ? "" : `<button class="smallBtn" data-id="${it.id}">Hapus</button>`}</td>
@@ -372,11 +377,11 @@ function renderRiwayat() {
   });
 
   if (!currentRole || currentRole === "guest") return;
-  document.querySelectorAll("#barang_tabelRiwayat .smallBtn").forEach(btn => {
+
+  document.querySelectorAll("#barang_tabelRiwayat .smallBtn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const id = btn.getAttribute("data-id");
-      if (id && confirm("Yakin ingin menghapus riwayat ini?")) {
-        // GANTI PATH: riwayatBarang -> riwayat
+      if (id && confirm(`Yakin ingin menghapus riwayat ini?`)) {
         remove(ref(dbBarang, `riwayat/${id}`));
       }
     });
