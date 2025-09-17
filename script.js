@@ -397,8 +397,10 @@ onValue(ref(dbBarang, "stok"), snapshot => {
 
 onValue(ref(dbBarang, "riwayat"), snapshot => {
   const arr = [];
-  snapshot.forEach(child => arr.push({ id: child.key, ...child.val() }));
-  arr.sort((a,b) => {
+  snapshot.forEach(child => {
+    arr.push({ id: child.key, ...child.val() });
+  });
+  arr.sort((a, b) => {
     if (a.tanggal === b.tanggal) return a.id < b.id ? 1 : -1;
     return (a.tanggal < b.tanggal ? 1 : -1);
   });
