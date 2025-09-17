@@ -548,21 +548,30 @@ function renderStokAlat() {
 function renderRiwayatAlat() {
   let data = [...riwayatAlat];
   const key = (alat_searchBar.value || "").trim().toLowerCase();
-  if (key) data = data.filter(it => it.nama.toLowerCase().includes(key) || (it.spesifikasi||"").toLowerCase().includes(key) || (it.tanggal||"").includes(key));
+  if (key) {
+    data = data.filter(it => 
+      it.nama.toLowerCase().includes(key) || 
+      (it.spesifikasi || "").toLowerCase().includes(key) || 
+      (it.tanggal || "").includes(key)
+    );
+  }
+
   alat_tabelRiwayatBody.innerHTML = "";
   if (data.length === 0) {
     alat_tabelRiwayatBody.innerHTML = `<tr><td colspan="8">Tidak ada riwayat</td></tr>`;
     return;
   }
+
   const isGuest = currentRole === "guest";
+
   data.forEach((it, idx) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${idx+1}</td>
+      <td>${idx + 1}</td>
       <td>${escapeHtml(it.tanggal)}</td>
       <td>${escapeHtml(it.nama)}</td>
       <td>${escapeHtml(it.spesifikasi ?? "-")}</td>
-      <td>${it.perubahan>0? "+"+it.perubahan : it.perubahan}</td>
+      <td>${it.perubahan > 0 ? "+" + it.perubahan : it.perubahan}</td>
       <td>${it.sisa}</td>
       <td>${escapeHtml(it.satuan ?? "-")}</td>
       <td>${isGuest ? "" : `<button class="smallBtn" data-id="${it.id}">Hapus</button>`}</td>
@@ -571,24 +580,29 @@ function renderRiwayatAlat() {
   });
 
   if (!currentRole || currentRole === "guest") return;
-  document.querySelectorAll("#alat_tabelRiwayat .smallBtn").forEach(btn => {
+
+  document.querySelectorAll("#alat_tabelRiwayat .smallBtn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const id = btn.getAttribute("data-id");
-      if (id && confirm("Yakin ingin menghapus riwayat ini?")) remove(ref(dbAlat, `riwayatAlat/${id}`));
+      if (id && confirm(`Yakin ingin menghapus riwayat ini?`)) {
+        remove(ref(dbAlat, `riwayatAlat/${id}`));
+      }
     });
   });
 }
 
 /* real-time listeners alat */
-onValue(ref(dbAlat, `stokAlat`), snapshot => {
+onValue(ref(dbAlat, "stokAlat"), snapshot => {
   stokAlat = snapshot.val() || {};
-  renderStokAlat();
+  renderStok();
 });
 
-onValue(ref(dbAlat, `riwayatAlat`), snapshot => {
+onValue(ref(dbAlat, "riwayatAlat"), snapshot => {
   const arr = [];
-  snapshot.forEach(child => arr.push({ id: child.key, ...child.val() }));
-  arr.sort((a,b) => {
+  snapshot.forEach(child => {
+    arr.push({ id: child.key, ...child.val() });
+  });
+  arr.sort((a, b) => {
     if (a.tanggal === b.tanggal) return a.id < b.id ? 1 : -1;
     return (a.tanggal < b.tanggal ? 1 : -1);
   });
