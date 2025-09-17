@@ -5,7 +5,14 @@ import {
   getDatabase, ref, set, push, remove, onValue, update
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
 
-/* Config Database Barang */
+/* =======================================================
+   Dua Firebase project (sesuai permintaan: beda project)
+   - appBarang (stok barang)
+   - appAlat   (stok alat)
+   (JANGAN UBAH config jika ingin tetap connect ke projectmu)
+======================================================= */
+
+/* config Barang (sama persis dengan yang kamu kirim untuk web1) */
 const firebaseConfigBarang = {
   apiKey: "AIzaSyAXwrQEVJpDXSsWSF-QEcEtwzl08khw_YI",
   authDomain: "stok-barang-d9ea6.firebaseapp.com",
@@ -17,7 +24,7 @@ const firebaseConfigBarang = {
   measurementId: "G-VBDWX1E7H3"
 };
 
-/* Config Database Alat */
+/* config Alat (sama persis dengan yang kamu kirim untuk web2) */
 const firebaseConfigAlat = {
   apiKey: "AIzaSyCaOQPlCQ8oBNp1H2I1Frf6dN5lUmzBGN4",
   authDomain: "stok-alat.firebaseapp.com",
@@ -39,7 +46,7 @@ const analyticsAlat = getAnalytics(appAlat);
 const dbAlat = getDatabase(appAlat);
 
 /* =======================================================
-   LOGIN CONFIG
+   LOGIN CONFIG (sama untuk keduanya)
 ======================================================= */
 const CREDENTIALS = {
   username: "admin",
@@ -74,9 +81,9 @@ const btnCancelEdit = document.getElementById("btnCancelEdit");
 /* =======================================================
    STATE untuk barang & alat (terpisah)
 ======================================================= */
-let stokBarang = {};
-let riwayat = [];
-let editMode = null;
+let stokBarang = {};   // object keyed by nama
+let riwayat = []; // array
+let editMode = null;    // { type: 'barang'|'alat', namaLama }
 
 let stokAlat = {};
 let riwayatAlat = [];
@@ -186,12 +193,12 @@ function showPage(page) {
   if (page === "barang") {
     pageBarang.style.display = "block";
     pageAlat.style.display = "none";
-    appTitle.textContent = "Stok Barang";
+    appTitle.textContent = "Monitoring Stok Barang";
     btnSwitch.textContent = "Switch Halaman → Alat";
   } else {
     pageBarang.style.display = "none";
     pageAlat.style.display = "block";
-    appTitle.textContent = "Stok Alat";
+    appTitle.textContent = "Monitoring Stok Alat";
     btnSwitch.textContent = "Switch Halaman → Barang";
   }
 }
@@ -207,7 +214,7 @@ function applyRoleUI() {
   barang_inputTanggal.disabled = isGuest;
   barang_btnSimpan.disabled = isGuest;
   barang_btnReset.disabled = isGuest;
-  barang_bulanExport.disabled = false;
+  barang_bulanExport.disabled = false; // export tetap boleh
 
   // alat
   alat_inputNama.disabled = isGuest;
@@ -259,6 +266,7 @@ barang_btnSimpan.addEventListener("click", () => {
   const sisaBaru = stokLama + jumlah;
   if (jumlah < 0 && sisaBaru < 0) return alert(`Stok tidak cukup. Stok saat ini: ${stokLama}`);
 
+  // GANTI PATH: stokBarang -> stok, riwayatBarang -> riwayat
   set(ref(dbBarang, `stok/${nama}`), { jumlah: sisaBaru, satuan })
     .then(() => {
       return push(ref(dbBarang, "riwayat"), {
@@ -312,6 +320,7 @@ function renderStok() {
     btn.addEventListener("click", () => {
       const namaBarang = btn.getAttribute("data-hapus-barang");
       if (!confirm(`Yakin menghapus barang "${namaBarang}"?`)) return;
+      // GANTI PATH: stokBarang -> stok, riwayatBarang -> riwayat
       remove(ref(dbBarang, `stok/${namaBarang}`));
       onValue(ref(dbBarang, "riwayat"), snapshot => {
         snapshot.forEach(child => {
@@ -380,6 +389,7 @@ function renderRiwayat() {
 }
 
 /* real-time listeners barang */
+// GANTI PATHS: stokBarang -> stok, riwayatBarang -> riwayat
 onValue(ref(dbBarang, "stok"), snapshot => {
   stokBarang = snapshot.val() || {};
   renderStok();
@@ -428,6 +438,7 @@ document.getElementById("barang_btnExportRiwayat").addEventListener("click", () 
 
 /* =======================================================
    LOGIC: ALAT (database di dbAlat path: stokAlat, riwayatAlat)
+   (tidak diubah)
 ======================================================= */
 function resetFormAlat() {
   alat_inputNama.value = "";
@@ -643,6 +654,7 @@ btnUpdate.addEventListener("click", () => {
     if (Number.isNaN(jumlahBaru)) return alert("Jumlah harus angka.");
     if (jumlahBaru < 0) return alert("Jumlah tidak boleh negatif.");
 
+    // GANTI PATHS: stokBarang -> stok, riwayatBarang -> riwayat
     remove(ref(dbBarang, `stok/${namaLama}`))
       .then(() => set(ref(dbBarang, `stok/${namaBaru}`), { jumlah: jumlahBaru, satuan: satuanBaru }))
       .then(() => {
