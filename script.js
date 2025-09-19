@@ -442,11 +442,15 @@ alat_btnReset.addEventListener("click", () => resetFormAlat());
 
 /* SIMPAN ALAT */
 alat_btnSimpan.addEventListener("click", () => {
-  if (currentRole === "guest") { alert("Mode Tamu: tidak diizinkan mengubah data."); return; }
-  const nama = (alat_inputNama.value || "").trim();
-  const spesifikasi = (alat_inputSpesifikasi.value || "").trim() || "-";
+  if (currentRole === "guest") {
+    alert("Mode Tamu: tidak diizinkan mengubah data.");
+    return;
+  }
+
+  const nama = alat_inputNama.value.trim();
+  const spesifikasi = alat_inputSpesifikasi.value.trim() || "-";
   const jumlah = Number(alat_inputJumlah.value);
-  const satuan = (alat_inputSatuan.value || "").trim() || "-";
+  const satuan = alat_inputSatuan.value.trim() || "-";
   const tanggal = alat_inputTanggal.value;
 
   if (!nama) return alert("Nama alat wajib diisi.");
@@ -456,18 +460,40 @@ alat_btnSimpan.addEventListener("click", () => {
 
   const stokLama = stokAlat[nama]?.jumlah || 0;
   const sisaBaru = stokLama + jumlah;
-  if (jumlah < 0 && sisaBaru < 0) return alert(`Stok tidak cukup. Stok saat ini: ${stokLama}`);
+  if (jumlah < 0 && sisaBaru < 0) {
+    return alert(`Stok tidak cukup. Stok saat ini: ${stokLama}`);
+  }
 
   set(ref(dbAlat, `stokAlat/${nama}`), { jumlah: sisaBaru, satuan, spesifikasi })
-    .then(() => push(ref(dbAlat, `riwayatAlat`), {
-      tanggal, nama, spesifikasi, perubahan: jumlah, sisa: sisaBaru, satuan
-    }))
     .then(() => {
-      alert("✅ Data alat berhasil disimpan.");
-      resetFormAlat();
+      return push(ref(dbAlat, "riwayatAlat"), {
+        tanggal,
+        nama,
+        spesifikasi,
+        perubahan: jumlah,
+        sisa: sisaBaru,
+        satuan
+      });
     })
-    .catch(err => console.error("Gagal simpan alat:", err));
+    .then(() => {
+      alert("✅ Data berhasil disimpan.");
+      resetFormInputs();
+    })
+    .catch(err => console.error("❌ Gagal menyimpan data:", err));
 });
+
+alat_btnReset.addEventListener("click", () => {
+  resetFormInputs();
+  editMode = null;
+});
+
+function resetFormInputs() {
+  alat_inputNama.value = "";
+  alat_inputSpesifikasi.value = "";
+  alat_inputJumlah.value = "";
+  alat_inputSatuan.value = "";
+  alat_inputTanggal.value = "";
+}
 
 /* RENDER STOK ALAT */
 function renderStokAlat() {
