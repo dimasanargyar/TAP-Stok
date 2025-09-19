@@ -555,11 +555,14 @@ function renderStokAlat() {
     btn.addEventListener("click", () => {
       const namaAlat = btn.getAttribute("data-edit-alat");
       const item = stokAlat[namaAlat];
+      editMode = { type: "alat", namaLama: namaAlat };
+      editModalTitle.textContent = `Edit Alat: ${namaAlat}`;
+      editFieldsBarang.style.display = "none";
+      editFieldsAlat.style.display = "block";
       edit_alat_nama.value = namaAlat;
       edit_alat_spesifikasi.value = item?.spesifikasi ?? "-";
       edit_alat_jumlah.value = item?.jumlah ?? item ?? 0;
       edit_alat_satuan.value = item?.satuan ?? "-";
-      editMode = { namaLama: namaAlat };
       editModal.style.display = "flex";
     });
   });
