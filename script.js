@@ -266,6 +266,7 @@ barang_btnSimpan.addEventListener("click", () => {
         nama,
         perubahan: jumlah,
         sisa: sisaBaru,
+        satuan
       });
     })
     .then(() => {
@@ -471,8 +472,11 @@ alat_btnSimpan.addEventListener("click", () => {
 /* RENDER STOK ALAT */
 function renderStokAlat() {
   alat_tabelStokBody.innerHTML = "";
+
   const key = (alat_searchStok.value || "").trim().toLowerCase();
-  const filtered = Object.keys(stokAlat).filter(nama => nama.toLowerCase().includes(key));
+  const filtered = Object.keys(stokAlat).filter(nama =>
+    nama.toLowerCase().includes(key)
+  );
 
   if (filtered.length === 0) {
     alat_tabelStokBody.innerHTML = `<tr><td colspan="5">Tidak ada stok</td></tr>`;
@@ -480,11 +484,13 @@ function renderStokAlat() {
   }
 
   const isGuest = currentRole === "guest";
+
   filtered.sort().forEach(nama => {
     const item = stokAlat[nama];
-    const jumlah = item?.jumlah ?? 0;
+    const jumlah = item?.jumlah ?? item ?? 0;
     const satuan = item?.satuan ?? "-";
     const spesifikasi = item?.spesifikasi ?? "-";
+
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${escapeHtml(nama)}</td>
@@ -506,13 +512,16 @@ function renderStokAlat() {
   document.querySelectorAll("[data-hapus-alat]").forEach(btn => {
     btn.addEventListener("click", () => {
       const namaAlat = btn.getAttribute("data-hapus-alat");
-      if (!confirm(`Yakin menghapus alat "${namaAlat}"?`)) return;
-      remove(ref(dbAlat, `stokAlat/${namaAlat}`));
-      onValue(ref(dbAlat, `riwayatAlat`), snapshot => {
-        snapshot.forEach(child => {
-          if (child.val().nama === namaAlat) remove(ref(dbAlat, `riwayatAlat/${child.key}`));
-        });
-      }, { onlyOnce: true });
+      if (confirm(`Yakin ingin menghapus alat "${namaAlat}"?`)) {
+        remove(ref(dbAlat, `stokAlat/${namaAlat}`));
+        onValue(ref(dbAlat, "riwayatAlat"), snapshot => {
+          snapshot.forEach(child => {
+            if (child.val().nama === namaAlat) {
+              remove(ref(db, `riwayat/${child.key}`));
+            }
+          });
+        }, { onlyOnce: true });
+      }
     });
   });
 
@@ -520,14 +529,11 @@ function renderStokAlat() {
     btn.addEventListener("click", () => {
       const namaAlat = btn.getAttribute("data-edit-alat");
       const item = stokAlat[namaAlat];
-      editMode = { type: "alat", namaLama: namaAlat };
-      editModalTitle.textContent = `Edit Alat: ${namaAlat}`;
-      editFieldsBarang.style.display = "none";
-      editFieldsAlat.style.display = "block";
-      edit_alat_nama.value = namaAlat;
-      edit_alat_spesifikasi.value = item?.spesifikasi ?? "-";
-      edit_alat_jumlah.value = item?.jumlah ?? 0;
-      edit_alat_satuan.value = item?.satuan ?? "-";
+      editNama.value = namaAlat;
+      editSpesifikasi.value = item?.spesifikasi ?? "-";
+      editJumlah.value = item?.jumlah ?? item ?? 0;
+      editSatuan.value = item?.satuan ?? "-";
+      editMode = { namaLama: namaAlat };
       editModal.style.display = "flex";
     });
   });
