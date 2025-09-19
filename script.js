@@ -112,7 +112,6 @@ const alat_inputJumlah = document.getElementById("alat_inputJumlah");
 const alat_inputSatuan = document.getElementById("alat_inputSatuan");
 const alat_inputTanggal = document.getElementById("alat_inputTanggal");
 const alat_btnSimpan = document.getElementById("alat_btnSimpan");
-const alat_btnResetForm = document.getElementById("alat_btnResetForm");
 const alat_btnReset = document.getElementById("alat_btnReset");
 const alat_searchBar = document.getElementById("alat_searchBar");
 const alat_searchStok = document.getElementById("alat_searchStok");
@@ -483,7 +482,7 @@ alat_btnSimpan.addEventListener("click", () => {
     .catch(err => console.error("❌ Gagal menyimpan data:", err));
 });
 
-alat_btnResetForm.addEventListener("click", () => {
+alat_btnReset.addEventListener("click", () => {
   resetFormInputs();
   editMode = null;
 });
