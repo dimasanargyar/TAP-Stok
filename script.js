@@ -618,7 +618,7 @@ function renderRiwayatAlat() {
 /* real-time listeners alat */
 onValue(ref(dbAlat, "stokAlat"), snapshot => {
   stokAlat = snapshot.val() || {};
-  renderStok();
+  renderStokAlat();
 });
 
 onValue(ref(dbAlat, "riwayatAlat"), snapshot => {
