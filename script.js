@@ -543,7 +543,7 @@ function renderStokAlat() {
         onValue(ref(dbAlat, "riwayatAlat"), snapshot => {
           snapshot.forEach(child => {
             if (child.val().nama === namaAlat) {
-              remove(ref(db, `riwayat/${child.key}`));
+              remove(ref(dbAlat, `riwayatAlat/${child.key}`));
             }
           });
         }, { onlyOnce: true });
