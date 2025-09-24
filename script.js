@@ -216,6 +216,7 @@ function applyRoleUI() {
   alat_inputSpesifikasi.disabled = isGuest;
   alat_inputJumlah.disabled = isGuest;
   alat_inputSatuan.disabled = isGuest;
+  alat_inputKeterangan.disabled = isGuest;
   alat_inputTanggal.disabled = isGuest;
   alat_btnSimpan.disabled = isGuest;
   alat_btnReset.disabled = isGuest;
