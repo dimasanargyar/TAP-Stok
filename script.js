@@ -110,6 +110,7 @@ const alat_inputNama = document.getElementById("alat_inputNama");
 const alat_inputSpesifikasi = document.getElementById("alat_inputSpesifikasi");
 const alat_inputJumlah = document.getElementById("alat_inputJumlah");
 const alat_inputSatuan = document.getElementById("alat_inputSatuan");
+const alat_inputKeterangan = document.getElementById("alat_inputKeterangan");
 const alat_inputTanggal = document.getElementById("alat_inputTanggal");
 const alat_btnSimpan = document.getElementById("alat_btnSimpan");
 const alat_btnReset = document.getElementById("alat_btnReset");
@@ -126,6 +127,7 @@ const edit_alat_nama = document.getElementById("edit_alat_nama");
 const edit_alat_spesifikasi = document.getElementById("edit_alat_spesifikasi");
 const edit_alat_jumlah = document.getElementById("edit_alat_jumlah");
 const edit_alat_satuan = document.getElementById("edit_alat_satuan");
+const edit_alat_keterangan = document.getElementById("edit_alat_keterangan");
 
 /* pages */
 const pageBarang = document.getElementById("pageBarang");
@@ -452,6 +454,7 @@ alat_btnSimpan.addEventListener("click", () => {
   const jumlah = Number(alat_inputJumlah.value);
   const satuan = alat_inputSatuan.value.trim() || "-";
   const tanggal = alat_inputTanggal.value;
+  const keterangan = alat_inputKeterangan.value.trim() || "-";
 
   if (!nama) return alert("Nama alat wajib diisi.");
   if (!tanggal) return alert("Tanggal wajib diisi.");
@@ -464,7 +467,7 @@ alat_btnSimpan.addEventListener("click", () => {
     return alert(`Stok tidak cukup. Stok saat ini: ${stokLama}`);
   }
 
-  set(ref(dbAlat, `stokAlat/${nama}`), { jumlah: sisaBaru, satuan, spesifikasi })
+  set(ref(dbAlat, `stokAlat/${nama}`), { jumlah: sisaBaru, satuan, spesifikasi, keterangan })
     .then(() => {
       return push(ref(dbAlat, "riwayatAlat"), {
         tanggal,
@@ -472,7 +475,8 @@ alat_btnSimpan.addEventListener("click", () => {
         spesifikasi,
         perubahan: jumlah,
         sisa: sisaBaru,
-        satuan
+        satuan,
+        keterangan
       });
     })
     .then(() => {
@@ -493,6 +497,7 @@ function resetFormInputs() {
   alat_inputJumlah.value = "";
   alat_inputSatuan.value = "";
   alat_inputTanggal.value = "";
+  alat_inputKeterangan.value = "";
 }
 
 /* RENDER STOK ALAT */
@@ -516,6 +521,7 @@ function renderStokAlat() {
     const jumlah = item?.jumlah ?? item ?? 0;
     const satuan = item?.satuan ?? "-";
     const spesifikasi = item?.spesifikasi ?? "-";
+    const keterangan = item?.keterangan ?? "-";
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -523,6 +529,7 @@ function renderStokAlat() {
       <td>${escapeHtml(spesifikasi)}</td>
       <td>${jumlah}</td>
       <td>${escapeHtml(satuan)}</td>
+      <td>${escapeHtml(keterangan)}</td>
       <td>
         ${isGuest ? "" : `
           <button class="smallBtn" data-edit-alat="${escapeHtml(nama)}">Edit</button>
@@ -563,6 +570,7 @@ function renderStokAlat() {
       edit_alat_spesifikasi.value = item?.spesifikasi ?? "-";
       edit_alat_jumlah.value = item?.jumlah ?? item ?? 0;
       edit_alat_satuan.value = item?.satuan ?? "-";
+      edit_alat_keterangan.value = item?.keterangan ?? "-";
       editModal.style.display = "flex";
     });
   });
@@ -598,6 +606,7 @@ function renderRiwayatAlat() {
       <td>${it.perubahan > 0 ? "+" + it.perubahan : it.perubahan}</td>
       <td>${it.sisa}</td>
       <td>${escapeHtml(it.satuan ?? "-")}</td>
+      <td>${escapeHtml(it.keterangan ?? "-")}</td>
       <td>${isGuest ? "" : `<button class="smallBtn" data-id="${it.id}">Hapus</button>`}</td>
     `;
     alat_tabelRiwayatBody.appendChild(tr);
@@ -700,6 +709,7 @@ btnUpdate.addEventListener("click", () => {
     const spesifikasiBaru = (edit_alat_spesifikasi.value || "").trim() || "-";
     const jumlahBaru = Number(edit_alat_jumlah.value);
     const satuanBaru = (edit_alat_satuan.value || "").trim() || "-";
+    const keteranganBaru = (edit_alat_keterangan.value || "").trim() || "-";
     const tanggal = todayISO();
 
     if (!namaBaru) return alert("Nama alat wajib diisi.");
@@ -707,12 +717,12 @@ btnUpdate.addEventListener("click", () => {
     if (jumlahBaru < 0) return alert("Jumlah tidak boleh negatif.");
 
     remove(ref(dbAlat, `stokAlat/${namaLama}`))
-      .then(() => set(ref(dbAlat, `stokAlat/${namaBaru}`), { jumlah: jumlahBaru, satuan: satuanBaru, spesifikasi: spesifikasiBaru }))
+      .then(() => set(ref(dbAlat, `stokAlat/${namaBaru}`), { jumlah: jumlahBaru, satuan: satuanBaru, spesifikasi: spesifikasiBaru, keterangan: keteranganBaru }))
       .then(() => {
         onValue(ref(dbAlat, `riwayatAlat`), snapshot => {
           snapshot.forEach(child => {
             if (child.val().nama === namaLama) {
-              update(ref(dbAlat, `riwayatAlat/${child.key}`), { nama: namaBaru, spesifikasi: spesifikasiBaru, sisa: jumlahBaru, satuan: satuanBaru });
+              update(ref(dbAlat, `riwayatAlat/${child.key}`), { nama: namaBaru, spesifikasi: spesifikasiBaru, sisa: jumlahBaru, satuan: satuanBaru, keterangan: keteranganBaru });
             }
           });
         }, { onlyOnce: true });
