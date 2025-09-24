@@ -694,7 +694,7 @@ btnUpdate.addEventListener("click", () => {
         onValue(ref(dbBarang, `riwayat`), snapshot => {
           snapshot.forEach(child => {
             if (child.val().nama === namaLama) {
-              update(ref(dbBarang, `riwayat/${child.key}`), { nama: namaBaru, sisa: jumlahBaru, satuan: satuanBaru });
+              update(ref(dbBarang, `riwayat/${child.key}`), { nama: namaBaru, satuan: satuanBaru });
             }
           });
         }, { onlyOnce: true });
