@@ -708,6 +708,7 @@ btnUpdate.addEventListener("click", () => {
     const namaBaru = (edit_alat_nama.value || "").trim();
     const spesifikasiBaru = (edit_alat_spesifikasi.value || "").trim() || "-";
     const jumlahBaru = Number(edit_alat_jumlah.value);
+    const perubahan = jumlahBaru;
     const satuanBaru = (edit_alat_satuan.value || "").trim() || "-";
     const keteranganBaru = (edit_alat_keterangan.value || "").trim() || "-";
     const tanggal = todayISO();
@@ -722,7 +723,7 @@ btnUpdate.addEventListener("click", () => {
         onValue(ref(dbAlat, `riwayatAlat`), snapshot => {
           snapshot.forEach(child => {
             if (child.val().nama === namaLama) {
-              update(ref(dbAlat, `riwayatAlat/${child.key}`), { nama: namaBaru, spesifikasi: spesifikasiBaru, sisa: jumlahBaru, satuan: satuanBaru, keterangan: keteranganBaru });
+              update(ref(dbAlat, `riwayatAlat/${child.key}`), { nama: namaBaru, spesifikasi: spesifikasiBaru, perubahan = jumlahBaru, sisa: jumlahBaru, satuan: satuanBaru, keterangan: keteranganBaru });
             }
           });
         }, { onlyOnce: true });
